@@ -3,18 +3,18 @@ import {useEffect, useState} from "react";
 import axios from "axios";
 import { withSwal } from 'react-sweetalert2';
 
-function Categories({swal}) {
+function Teachers({swal}) {
   const [editedCategory, setEditedCategory] = useState(null);
   const [name,setName] = useState('');
   const [parentCategory,setParentCategory] = useState('');
-  const [categories,setCategories] = useState([]);
+  const [teachers,setTeachers] = useState([]);
   const [properties,setProperties] = useState([]);
   useEffect(() => {
-    fetchCategories();
+    fetchTeachers();
   }, [])
-  function fetchCategories() {
-    axios.get('/api/categories').then(result => {
-      setCategories(result.data);
+  function fetchTeachers() {
+    axios.get('/api/teachers').then(result => {
+      setTeachers(result.data);
     });
   }
   async function saveCategory(ev){
@@ -29,31 +29,31 @@ function Categories({swal}) {
     };
     if (editedCategory) {
       data._id = editedCategory._id;
-      await axios.put('/api/categories', data);
+      await axios.put('/api/teachers', data);
       setEditedCategory(null);
     } else {
-      await axios.post('/api/categories', data);
+      await axios.post('/api/teachers', data);
     }
     setName('');
     setParentCategory('');
     setProperties([]);
-    fetchCategories();
+    fetchTeachers();
   }
-  function editCategory(category){
-    setEditedCategory(category);
-    setName(category.name);
-    setParentCategory(category.parent?._id);
+  function editCategory(teacher){
+    setEditedCategory(teacher);
+    setName(teacher.name);
+    setParentCategory(teacher.parent?._id);
     setProperties(
-      category.properties.map(({name,values}) => ({
+      teacher.properties.map(({name,values}) => ({
       name,
       values:values.join(',')
     }))
     );
   }
-  function deleteCategory(category){
+  function deleteCategory(teacher){
     swal.fire({
       title: 'Are you sure?',
-      text: `Do you want to delete ${category.name}?`,
+      text: `Do you want to delete ${teacher.name}?`,
       showCancelButton: true,
       cancelButtonText: 'Cancel',
       confirmButtonText: 'Yes, Delete!',
@@ -61,9 +61,9 @@ function Categories({swal}) {
       reverseButtons: true,
     }).then(async result => {
       if (result.isConfirmed) {
-        const {_id} = category;
-        await axios.delete('/api/categories?_id='+_id);
-        fetchCategories();
+        const {_id} = teacher;
+        await axios.delete('/api/teachers?_id='+_id);
+        fetchTeachers();
       }
     });
   }
@@ -95,11 +95,11 @@ function Categories({swal}) {
   }
   return (
     <Layout>
-      <h1>Categories</h1>
+      <h1>Teachers</h1>
       <label>
         {editedCategory
-          ? `Edit category ${editedCategory.name}`
-          : 'Create new category'}
+          ? `Edit teacher ${editedCategory.name}`
+          : 'Create new teacher'}
       </label>
       <form onSubmit={saveCategory}>
         <div className="flex gap-1">
@@ -111,9 +111,9 @@ function Categories({swal}) {
           <select
                   onChange={ev => setParentCategory(ev.target.value)}
                   value={parentCategory}>
-            <option value="">No parent category</option>
-            {categories.length > 0 && categories.map(category => (
-              <option key={category._id} value={category._id}>{category.name}</option>
+            <option value="">No parent teacher</option>
+            {teachers.length > 0 && teachers.map(teacher => (
+              <option key={teacher._id} value={teacher._id}>{teacher.name}</option>
             ))}
           </select>
         </div>
@@ -173,24 +173,24 @@ function Categories({swal}) {
           <thead>
           <tr>
             <td>Category name</td>
-            <td>Parent category</td>
+            <td>Parent teacher</td>
             <td></td>
           </tr>
           </thead>
           <tbody>
-          {categories.length > 0 && categories.map(category => (
-            <tr key={category._id}>
-              <td>{category.name}</td>
-              <td>{category?.parent?.name}</td>
+          {teachers.length > 0 && teachers.map(teacher => (
+            <tr key={teacher._id}>
+              <td>{teacher.name}</td>
+              <td>{teacher?.parent?.name}</td>
               <td>
                 <button
-                  onClick={() => editCategory(category)}
+                  onClick={() => editCategory(teacher)}
                   className="btn-default mr-1"
                 >
                   Edit
                 </button>
                 <button
-                  onClick={() => deleteCategory(category)}
+                  onClick={() => deleteCategory(teacher)}
                   className="btn-red">Delete</button>
               </td>
             </tr>
@@ -203,5 +203,5 @@ function Categories({swal}) {
 }
 
 export default withSwal(({swal}, ref) => (
-  <Categories swal={swal} />
+  <Teachers swal={swal} />
 ));

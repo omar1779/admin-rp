@@ -1,4 +1,4 @@
-import {Category} from "@/models/Category";
+import {Teacher} from "@/models/Teacher";
 import {mongooseConnect} from "@/lib/mongoose";
 import {getServerSession} from "next-auth";
 import {authOptions, isAdminRequest} from "@/pages/api/auth/[...nextauth]";
@@ -9,32 +9,32 @@ export default async function handle(req, res) {
   await isAdminRequest(req,res);
 
   if (method === 'GET') {
-    res.json(await Category.find().populate('parent'));
+    res.json(await Teacher.find().populate('parent'));
   }
 
   if (method === 'POST') {
-    const {name,parentCategory,properties} = req.body;
-    const categoryDoc = await Category.create({
+    const {name,parentTeacher,properties} = req.body;
+    const teacherDoc = await Teacher.create({
       name,
-      parent: parentCategory || undefined,
+      parent: parentTeacher || undefined,
       properties,
     });
-    res.json(categoryDoc);
+    res.json(teacherDoc);
   }
 
   if (method === 'PUT') {
-    const {name,parentCategory,properties,_id} = req.body;
-    const categoryDoc = await Category.updateOne({_id},{
+    const {name,parentTeacher,properties,_id} = req.body;
+    const teacherDoc = await Teacher.updateOne({_id},{
       name,
-      parent: parentCategory || undefined,
+      parent: parentTeacher || undefined,
       properties,
     });
-    res.json(categoryDoc);
+    res.json(teacherDoc);
   }
 
   if (method === 'DELETE') {
     const {_id} = req.query;
-    await Category.deleteOne({_id});
+    await Teacher.deleteOne({_id});
     res.json('ok');
   }
 }

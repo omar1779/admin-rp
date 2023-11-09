@@ -6,7 +6,7 @@ import axios from "axios";
 export default function Products() {
   const [products,setProducts] = useState([]);
   useEffect(() => {
-    axios.get('/api/products').then(response => {
+    axios.get('/api/teachers').then(response => {
       setProducts(response.data);
     });
   }, []);
