@@ -4,59 +4,50 @@ import axios from "axios";
 import { withSwal } from 'react-sweetalert2';
 
 function Teachers({swal}) {
-  const [editedCategory, setEditedCategory] = useState(null);
+  const [editedTeacher, setEditedTeacher] = useState(null);
   const [name,setName] = useState('');
-  const [parentCategory,setParentCategory] = useState('');
+  const [descriptionTeacher,setDescriptionTeacher] = useState('');
   const [teachers,setTeachers] = useState([]);
-  const [properties,setProperties] = useState([]);
   useEffect(() => {
     fetchTeachers();
   }, [])
   function fetchTeachers() {
     axios.get('/api/teachers').then(result => {
       setTeachers(result.data);
+      console.log(result.data)
     });
   }
-  async function saveCategory(ev){
+  async function saveTeacher(ev){
     ev.preventDefault();
     const data = {
       name,
-      parentCategory,
-      properties:properties.map(p => ({
-        name:p.name,
-        values:p.values.split(','),
-      })),
+      descriptionTeacher,
     };
-    if (editedCategory) {
-      data._id = editedCategory._id;
+    console.log(data)
+    if (editedTeacher) {
+      data._id = editedTeacher._id;
       await axios.put('/api/teachers', data);
-      setEditedCategory(null);
+      setEditedTeacher(null);
     } else {
       await axios.post('/api/teachers', data);
     }
     setName('');
-    setParentCategory('');
+    setDescriptionTeacher('');
     setProperties([]);
     fetchTeachers();
   }
-  function editCategory(teacher){
-    setEditedCategory(teacher);
+  function editTeacher(teacher){
+    setEditedTeacher(teacher);
     setName(teacher.name);
-    setParentCategory(teacher.parent?._id);
-    setProperties(
-      teacher.properties.map(({name,values}) => ({
-      name,
-      values:values.join(',')
-    }))
-    );
+    setDescriptionTeacher(teacher.description);
   }
-  function deleteCategory(teacher){
+  function deleteTeacher(teacher){
     swal.fire({
-      title: 'Are you sure?',
-      text: `Do you want to delete ${teacher.name}?`,
+      title: 'Estas seguro de seguir?',
+      text: `Tu borras al siguiente Maestro : ${teacher.name}?`,
       showCancelButton: true,
-      cancelButtonText: 'Cancel',
-      confirmButtonText: 'Yes, Delete!',
+      cancelButtonText: 'Cancelar',
+      confirmButtonText: 'Si, Borrar!',
       confirmButtonColor: '#d55',
       reverseButtons: true,
     }).then(async result => {
@@ -67,98 +58,39 @@ function Teachers({swal}) {
       }
     });
   }
-  function addProperty() {
-    setProperties(prev => {
-      return [...prev, {name:'',values:''}];
-    });
-  }
-  function handlePropertyNameChange(index,property,newName) {
-    setProperties(prev => {
-      const properties = [...prev];
-      properties[index].name = newName;
-      return properties;
-    });
-  }
-  function handlePropertyValuesChange(index,property,newValues) {
-    setProperties(prev => {
-      const properties = [...prev];
-      properties[index].values = newValues;
-      return properties;
-    });
-  }
-  function removeProperty(indexToRemove) {
-    setProperties(prev => {
-      return [...prev].filter((p,pIndex) => {
-        return pIndex !== indexToRemove;
-      });
-    });
-  }
   return (
     <Layout>
-      <h1>Teachers</h1>
+      <h1>Maestros</h1>
       <label>
-        {editedCategory
-          ? `Edit teacher ${editedCategory.name}`
-          : 'Create new teacher'}
+        {editedTeacher
+          ? `Editar maestro ${editedTeacher.name}`
+          : 'Crea un nuevo maestro'}
       </label>
-      <form onSubmit={saveCategory}>
+      <form onSubmit={saveTeacher}>
         <div className="flex gap-1">
           <input
             type="text"
-            placeholder={'Category name'}
+            className="border-slate-400 outline-none"
+            placeholder={'Nombre de Maestro'}
             onChange={ev => setName(ev.target.value)}
             value={name}/>
-          <select
-                  onChange={ev => setParentCategory(ev.target.value)}
-                  value={parentCategory}>
-            <option value="">No parent teacher</option>
-            {teachers.length > 0 && teachers.map(teacher => (
-              <option key={teacher._id} value={teacher._id}>{teacher.name}</option>
-            ))}
-          </select>
-        </div>
-        <div className="mb-2">
-          <label className="block">Properties</label>
-          <button
-            onClick={addProperty}
-            type="button"
-            className="btn-default text-sm mb-2">
-            Add new property
-          </button>
-          {properties.length > 0 && properties.map((property,index) => (
-            <div key={property.name} className="flex gap-1 mb-2">
-              <input type="text"
-                     value={property.name}
-                     className="mb-0"
-                     onChange={ev => handlePropertyNameChange(index,property,ev.target.value)}
-                     placeholder="property name (example: color)"/>
-              <input type="text"
-                     className="mb-0"
-                     onChange={ev =>
-                       handlePropertyValuesChange(
-                         index,
-                         property,ev.target.value
-                       )}
-                     value={property.values}
-                     placeholder="values, comma separated"/>
-              <button
-                onClick={() => removeProperty(index)}
-                type="button"
-                className="btn-red">
-                Remove
-              </button>
-            </div>
-          ))}
         </div>
         <div className="flex gap-1">
-          {editedCategory && (
+          <input
+            type="text"
+            className="border-slate-400 outline-none"
+            placeholder={'Añade una Descripcion'}
+            onChange={ev => setDescriptionTeacher(ev.target.value)}
+            value={descriptionTeacher}/>
+        </div>
+        <div className="flex gap-1">
+          {editedTeacher && (
             <button
               type="button"
               onClick={() => {
-                setEditedCategory(null);
+                setEditedTeacher(null);
                 setName('');
-                setParentCategory('');
-                setProperties([]);
+                setDescriptionTeacher('');
               }}
               className="btn-default">Cancel</button>
           )}
@@ -168,12 +100,12 @@ function Teachers({swal}) {
           </button>
         </div>
       </form>
-      {!editedCategory && (
-        <table className="basic mt-4">
+      {!editedTeacher && (
+        <table className="basic mt-4 hover:border-collapse">
           <thead>
           <tr>
-            <td>Category name</td>
-            <td>Parent teacher</td>
+            <td>Maestro</td>
+            <td>Descripcion</td>
             <td></td>
           </tr>
           </thead>
@@ -181,17 +113,17 @@ function Teachers({swal}) {
           {teachers.length > 0 && teachers.map(teacher => (
             <tr key={teacher._id}>
               <td>{teacher.name}</td>
-              <td>{teacher?.parent?.name}</td>
+              <td>{teacher?.description}</td>
               <td>
                 <button
-                  onClick={() => editCategory(teacher)}
-                  className="btn-default mr-1"
+                  onClick={() => editTeacher(teacher)}
+                  className="btn-primary mr-1"
                 >
-                  Edit
+                  Editar
                 </button>
                 <button
-                  onClick={() => deleteCategory(teacher)}
-                  className="btn-red">Delete</button>
+                  onClick={() => deleteTeacher(teacher)}
+                  className="btn-red">Borrar</button>
               </td>
             </tr>
           ))}

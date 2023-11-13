@@ -12,7 +12,7 @@ export default function EditProductPage() {
     if (!id) {
       return;
     }
-    axios.get('/api/products?id='+id).then(response => {
+    axios.get('/api/videos?id='+id).then(response => {
       setProductInfo(response.data);
     });
   }, [id]);

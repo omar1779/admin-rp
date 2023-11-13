@@ -16,10 +16,9 @@ export const Product = models.Product || model('Product', ProductSchema); */
 const VideosSchema = new Schema({
   title: {type:String, required:true},
   description: String,
-  duration: {type: Number, required: true},
+  duration: {type: String, required: true},
   videos: [{type:String}],
   teacher: {type:mongoose.Types.ObjectId, ref:'Teacher'},
-  properties: {type:Object},
 }, {
   timestamps: true,
 });

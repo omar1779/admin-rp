@@ -9,25 +9,24 @@ export default async function handle(req, res) {
   await isAdminRequest(req,res);
 
   if (method === 'GET') {
-    res.json(await Teacher.find().populate('parent'));
+    res.json(await Teacher.find());
   }
 
   if (method === 'POST') {
-    const {name,parentTeacher,properties} = req.body;
+    const {name,descriptionTeacher,properties} = req.body;
+    console.log(name,descriptionTeacher)
     const teacherDoc = await Teacher.create({
       name,
-      parent: parentTeacher || undefined,
-      properties,
+      description: descriptionTeacher || undefined,
     });
     res.json(teacherDoc);
   }
 
   if (method === 'PUT') {
-    const {name,parentTeacher,properties,_id} = req.body;
+    const {name,descriptionTeacher,_id} = req.body;
     const teacherDoc = await Teacher.updateOne({_id},{
       name,
-      parent: parentTeacher || undefined,
-      properties,
+      description: descriptionTeacher || undefined,
     });
     res.json(teacherDoc);
   }
